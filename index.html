@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="script.js">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحويل وضغط الملفات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 10px;
+            padding: 0;
+        }
+        header {
+            background-color: #0073e6;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: white;
+
+        }
+        .language-select {
+            margin: 0 15px;
+            padding: 10px 20px;
+            display: flex;
+        }
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+        .service {
+            background-color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .download-button {
+            display: none;
+            margin-top: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            nav {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <img src="pdf.png" alt="Logo">
+            <a href="#" style="color: white; text-decoration: none;" id="homeLink">الرئيسية</a>
+            <a href="#" style="color: white; text-decoration: none;" id="toolsLink">الأدوات</a>
+        </div>
+        <div class="language-select">
+            <label for="language" id="languageLabel">اختر اللغة:</label>
+            <select id="language" name="language">
+                <option value="en">English</option>
+                <option value="ar">العربية</option>
+                <option value="hi">हिन्दी</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+            </select>
+        </div>
+    </header>
+    <main>
+        <section id="pdf-to-word" class="service">
+            <h2 id="pdfToWordTitle">تحويل PDF إلى Word</h2>
+            <p id="pdfToWordDesc">قم برفع ملف PDF لتحويله إلى مستند Word قابل للتحرير.</p>
+            <input type="file" id="pdfFile" accept=".pdf" />
+            <button id="convertPdfToWord">تحويل</button>
+            <a id="downloadPdfToWord" class="download-button" href="#" download="converted.docx" style="display:none;">تحميل الملف</a>
+            <p id="pdfToWordStatus"></p>
+        </section>
+        <section id="compress-pdf" class="service">
+            <h2 id="compressPdfTitle">ضغط ملفات PDF</h2>
+            <p id="compressPdfDesc">قم برفع ملف PDF لتقليل حجمه بدون فقدان الجودة.</p>
+            <input type="file" id="compressPdfFile" accept=".pdf" />
+            <button id="compressPdf">ضغط</button>
+            <a id="downloadCompressedPdf" class="download-button" href="#" download>تحميل الملف</a>
+            <p id="compressPdfStatus"></p>
+        </section>
+        <section id="excel-to-pdf" class="service">
+            <h2 id="excelToPdfTitle">تحويل Excel إلى PDF</h2>
+            <p id="excelToPdfDesc">قم برفع ملف Excel لتحويله إلى صيغة PDF.</p>
+            <input type="file" id="excelFile" accept=".xlsx, .xls" />
+            <button id="convertExcelToPdf">تحويل</button>
+            <a id="downloadExcelToPdf" class="download-button" href="#" download>تحميل الملف</a>
+            <p id="excelToPdfStatus"></p>
+        </section>
+    </main>
+
+    <script>
+        // نصوص الصفحة بلغات مختلفة
+        const translations = {
+            en: {
+                homeLink: "Home",
+                toolsLink: "Tools",
+                languageLabel: "Choose Language:",
+                pdfToWordTitle: "Convert PDF to Word",
+                pdfToWordDesc: "Upload a PDF file to convert it to an editable Word document.",
+                compressPdfTitle: "Compress PDF",
+                compressPdfDesc: "Upload a PDF file to reduce its size without losing quality.",
+                excelToPdfTitle: "Convert Excel to PDF",
+                excelToPdfDesc: "Upload an Excel file to convert it to PDF format.",
+                convertButton: "Convert",
+                compressButton: "Compress",
+                downloadButton: "Download File",
+                statusConverting: "Converting file...",
+                statusCompressing: "Compressing file...",
+                statusSuccess: "File processed successfully!",
+                statusError: "Please select a file first."
+            },
+            ar: {
+                homeLink: "الرئيسية",
+                toolsLink: "الأدوات",
+                languageLabel: "اختر اللغة:",
+                pdfToWordTitle: "تحويل PDF إلى Word",
+                pdfToWordDesc: "قم برفع ملف PDF لتحويله إلى مستند Word قابل للتحرير.",
+                compressPdfTitle: "ضغط ملفات PDF",
+                compressPdfDesc: "قم برفع ملف PDF لتقليل حجمه بدون فقدان الجودة.",
+                excelToPdfTitle: "تحويل Excel إلى PDF",
+                excelToPdfDesc: "قم برفع ملف Excel لتحويله إلى صيغة PDF.",
+                convertButton: "تحويل",
+                compressButton: "ضغط",
+                downloadButton: "تحميل الملف",
+                statusConverting: "جارٍ تحويل الملف...",
+                statusCompressing: "جارٍ ضغط الملف...",
+                statusSuccess: "تم معالجة الملف بنجاح!",
+                statusError: "يرجى اختيار ملف أولاً."
+            },
+            hi: {
+                homeLink: "होम",
+                toolsLink: "टूल्स",
+                languageLabel: "भाषा चुनें:",
+                pdfToWordTitle: "PDF को Word में बदलें",
+                pdfToWordDesc: "एक PDF फ़ाइल अपलोड करें जिसे संपादन योग्य Word दस्तावेज़ में बदला जा सके।",
+                compressPdfTitle: "PDF को संपीड़ित करें",
+                compressPdfDesc: "गुणवत्ता खोए बिना PDF फ़ाइल का आकार कम करने के लिए अपलोड करें।",
+                excelToPdfTitle: "Excel को PDF में बदलें",
+                excelToPdfDesc: "Excel फ़ाइल को PDF प्रारूप में बदलने के लिए अपलोड करें।",
+                convertButton: "बदलें",
+                compressButton: "संपीड़ित करें",
+                downloadButton: "फ़ाइल डाउनलोड करें",
+                statusConverting: "फ़ाइल को बदला जा रहा है...",
+                statusCompressing: "फ़ाइल को संपीड़ित किया जा रहा है...",
+                statusSuccess: "फ़ाइल सफलतापूर्वक संसाधित हुई!",
+                statusError: "कृपया पहले एक फ़ाइल चुनें।"
+            },
+            fr: {
+                homeLink: "Accueil",
+                toolsLink: "Outils",
+                languageLabel: "Choisir la langue:",
+                pdfToWordTitle: "Convertir PDF en Word",
+                pdfToWordDesc: "Téléchargez un fichier PDF pour le convertir en document Word modifiable.",
+                compressPdfTitle: "Compresser PDF",
+                compressPdfDesc: "Téléchargez un fichier PDF pour réduire sa taille sans perdre en qualité.",
+                excelToPdfTitle: "Convertir Excel en PDF",
+                excelToPdfDesc: "Téléchargez un fichier Excel pour le convertir au format PDF.",
+                convertButton: "Convertir",
+                compressButton: "Compresser",
+                downloadButton: "Télécharger le fichier",
+                statusConverting: "Conversion du fichier en cours...",
+                statusCompressing: "Compression du fichier en cours...",
+                statusSuccess: "Fichier traité avec succès!",
+                statusError: "Veuillez d'abord sélectionner un fichier."
+            },
+            de: {
+                homeLink: "Startseite",
+                toolsLink: "Werkzeuge",
+                languageLabel: "Sprache auswählen:",
+                pdfToWordTitle: "PDF in Word konvertieren",
+                pdfToWordDesc: "Laden Sie eine PDF-Datei hoch, um sie in ein bearbeitbares Word-Dokument umzuwandeln.",
+                compressPdfTitle: "PDF komprimieren",
+                compressPdfDesc: "Laden Sie eine PDF-Datei hoch, um deren Größe ohne Qualitätsverlust zu reduzieren.",
+                excelToPdfTitle: "Excel in PDF konvertieren",
+                excelToPdfDesc: "Laden Sie eine Excel-Datei hoch, um sie in das PDF-Format zu konvertieren.",
+                convertButton: "Konvertieren",
+                compressButton: "Komprimieren",
+                downloadButton: "Datei herunterladen",
+                statusConverting: "Datei wird konvertiert...",
+                statusCompressing: "Datei wird komprimiert...",
+                statusSuccess: "Datei erfolgreich verarbeitet!",
+                statusError: "Bitte wählen Sie zuerst eine Datei aus."
+            }
+        };
+
+        // تغيير اللغة
+        document.getElementById("language").addEventListener("change", function () {
+            const selectedLanguage = this.value;
+            changeLanguage(selectedLanguage);
+        });
+
+        // وظيفة تغيير اللغة
+        function changeLanguage(language) {
+            const translation = translations[language];
+            document.getElementById("homeLink").textContent = translation.homeLink;
+            document.getElementById("toolsLink").textContent = translation.toolsLink;
+            document.getElementById("languageLabel").textContent = translation.languageLabel;
+            document.getElementById("pdfToWordTitle").textContent = translation.pdfToWordTitle;
+            document.getElementById("pdfToWordDesc").textContent = translation.pdfToWordDesc;
+            document.getElementById("compressPdfTitle").textContent = translation.compressPdfTitle;
+            document.getElementById("compressPdfDesc").textContent = translation.compressPdfDesc;
+            document.getElementById("excelToPdfTitle").textContent = translation.excelToPdfTitle;
+            document.getElementById("excelToPdfDesc").textContent = translation.excelToPdfDesc;
+            document.getElementById("convertPdfToWord").textContent = translation.convertButton;
+            document.getElementById("compressPdf").textContent = translation.compressButton;
+            document.getElementById("downloadPdfToWord").textContent = translation.downloadButton;
+            document.getElementById("downloadCompressedPdf").textContent = translation.downloadButton;
+            document.getElementById("downloadExcelToPdf").textContent = translation.downloadButton;
+        }
+
+        // تحويل PDF إلى Word
+        document.getElementById("convertPdfToWord").addEventListener("click", () => {
+            const pdfFile = document.getElementById("pdfFile").files[0];
+            if (pdfFile) {
+                document.getElementById("pdfToWordStatus").textContent = translations[document.getElementById("language").value].statusConverting;
+                setTimeout(() => {
+                    document.getElementById("pdfToWordStatus").textContent = translations[document.getElementById("language").value].statusSuccess;
+                    document.getElementById("downloadPdfToWord").style.display = "inline-block";
+                }, 2000);
+            } else {
+                document.getElementById("pdfToWordStatus").textContent = translations[document.getElementById("language").value].statusError;
+            }
+        });
+
+        // ضغط ملف PDF
+        document.getElementById("compressPdf").addEventListener("click", () => {
+            const pdfFile = document.getElementById("compressPdfFile").files[0];
+            if (pdfFile) {
+                document.getElementById("compressPdfStatus").textContent = translations[document.getElementById("language").value].statusCompressing;
+                setTimeout(() => {
+                    document.getElementById("compressPdfStatus").textContent = translations[document.getElementById("language").value].statusSuccess;
+                    document.getElementById("downloadCompressedPdf").style.display = "inline-block";
+                }, 2000);
+            } else {
+                document.getElementById("compressPdfStatus").textContent = translations[document.getElementById("language").value].statusError;
+            }
+        });
+
+        // تحويل Excel إلى PDF
+        document.getElementById("convertExcelToPdf").addEventListener("click", () => {
+            const excelFile = document.getElementById("excelFile").files[0];
+            if (excelFile) {
+                document.getElementById("excelToPdfStatus").textContent = translations[document.getElementById("language").value].statusConverting;
+                setTimeout(() => {
+                    document.getElementById("excelToPdfStatus").textContent = translations[document.getElementById("language").value].statusSuccess;
+                    document.getElementById("downloadExcelToPdf").style.display = "inline-block";
+                }, 2000);
+            } else {
+                document.getElementById("excelToPdfStatus").textContent = translations[document.getElementById("language").value].statusError;
+            }
+        });
+    document.getElementById("convertPdfToWord").addEventListener("click", async () => {
+    const pdfFile = document.getElementById("pdfFile").files[0];
+    if (!pdfFile) {
+        alert("يرجى اختيار ملف PDF");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", pdfFile);
+
+    const response = await fetch("/convert-pdf-to-word", {
+        method: "POST",
+        body: formData,
+    });
+
+    const data = await response.json();
+    if (data.download_link) {
+        const link = document.getElementById("downloadPdfToWord");
+        link.href = data.download_link;
+        link.style.display = "inline-block";
+    } else {
+        alert(data.error || "حدث خطأ أثناء التحويل.");
+    }
+});
+
+    </script>
+</body>
+</html>
